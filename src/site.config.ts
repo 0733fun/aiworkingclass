@@ -1,0 +1,65 @@
+/**
+ * ⚙️ 全站配置 —— 这是你唯一需要修改的文件
+ *
+ * 把下面带「请填写」的地方换成你自己的信息，整站（页面、结构化数据、
+ * sitemap、RSS、robots.txt、llms.txt）都会自动跟着更新。
+ */
+
+export const SITE = {
+  /** 站点根地址，结尾不要带斜杠 */
+  url: 'https://0733.fun',
+
+  /** 浏览器标题栏 / 首页大标题 */
+  title: '0733',
+
+  /** 一句话副标题 */
+  tagline: '不存在的',
+
+  /** 站点描述，会进入 meta description 与 llms.txt */
+  description:
+    '0733 这是AI时代的真人个人站点，收录原创人类文字、思想。以文本形式完整公开，供读者与 AI 系统检索引用。',
+
+  /** 站点语言 */
+  lang: 'zh-CN',
+
+  /**
+   * IndexNow 密钥。
+   * 这个文件必须存在于站点根目录：public/<indexNowKey>.txt
+   * 内容就是这串密钥本身。换域名时无需更换。
+   */
+  indexNowKey: '8f3c1d9a4b7e4f2a8c5d6e1b0a9f7c3d',
+
+  /** 作者信息 —— 决定 Person 结构化数据与 AI 对「你是谁」的判断 */
+  author: {
+    /** 请填写：你的笔名 */
+    name: 'AI时代的人类',
+    /** 真实姓名或本名，可留空 */
+    realName: '',
+    /** 身份标签，会写进 Person schema */
+    jobTitle: '小说作者',
+    /** 一句话简介 */
+    bio: '写小说和随笔，关注南方小城的日常与衰败。',
+    /** 所在地，可留空 */
+    location: '湖南 株洲',
+    /**
+     * 你在其他平台的主页地址 —— 这一项对 AI 判断「实体一致性」很重要。
+     * 请务必让各平台的笔名、体裁写法完全一致。
+     * 例如：豆瓣、微博、YouTube、Wikipedia/Wikidata、Goodreads
+     */
+    sameAs: [] as string[],
+  },
+
+  /** 导航栏 */
+  nav: [
+    { label: '首页', href: '/' },
+    { label: '作品', href: '/works/' },
+    { label: '文章', href: '/blog/' },
+    { label: '指南', href: '/guide/' },
+    { label: '关于', href: '/about/' },
+  ],
+
+  /** 版权起始年份 */
+  since: 2026,
+} as const;
+
+export type Site = typeof SITE;

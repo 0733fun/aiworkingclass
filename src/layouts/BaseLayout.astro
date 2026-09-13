@@ -1,0 +1,183 @@
+---
+/**
+ * 全站基础布局。
+ *
+ * 承担三件事：
+ *  1. head 里所有机器可读信号（canonical / OG / RSS / sitemap 声明）
+ *  2. 每页都注入 Person + WebSite 实体图，让 AI 能把「人名 → 域名 → 作品」
+ *     连成同一个实体（实体一致性是 AI 判断可信度的关键）
+ *  3. 可见的页头页脚，页脚暴露 RSS 与 llms.txt 入口，方便抓取器发现
+ */
+import { SITE } from '../site.config.ts';
+import JsonLd from '../components/JsonLd.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogType?: string;
+  /** 额外注入的结构化数据 */
+  jsonLd?: Array<Record<string, unknown>>;
+  /** 草稿页、404 页设为 true */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  ogType = 'website',
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+/** 统一 canonical：去掉 query / hash，非文件路径统一补结尾斜杠 */
+function canonicalize(pathname: string): string {
+  let p = pathname.split('?')[0].split('#')[0];
+  const last = p.split('/').pop() ?? '';
+  if (!p.endsWith('/') && !last.includes('.')) p += '/';
+  return new URL(p, SITE.url).href;
+}
+
+const canonical = canonicalize(Astro.url.pathname);
+const pageTitle = title
+  ? `${title} | ${SITE.title}`
+  : `${SITE.title} — ${SITE.tagline}`;
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${SITE.url}/#person`,
+  name: SITE.author.name,
+  jobTitle: SITE.author.jobTitle,
+  description: SITE.author.bio,
+  url: `${SITE.url}/about/`,
+  ...(SITE.author.realName ? { alternateName: SITE.author.realName } : {}),
+  ...(SITE.author.sameAs.length > 0 ? { sameAs: SITE.author.sameAs } : {}),
+  ...(SITE.author.location
+    ? { homeLocation: { '@type': 'Place', name: SITE.author.location } }
+    : {}),
+};
+
+const siteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE.url}/#website`,
+  name: SITE.title,
+  alternateName: SITE.tagline,
+  description: SITE.description,
+  url: `${SITE.url}/`,
+  inLanguage: SITE.lang,
+  author: { '@id': `${SITE.url}/#person` },
+  publisher: { '@id': `${SITE.url}/#person` },
+};
+
+const currentPath = Astro.url.pathname;
+
+/** about 页用 AboutPage 更好，其余用 WebPage */
+const webPageLd = {
+  '@context': 'https://schema.org',
+  '@type': currentPath === '/about/' ? 'AboutPage' : 'WebPage',
+  '@id': `${canonical}#webpage`,
+  url: canonical,
+  name: pageTitle,
+  description,
+  inLanguage: SITE.lang,
+  isPartOf: { '@id': `${SITE.url}/#website` },
+  about: { '@id': `${SITE.url}/#person` },
+};
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    {
+      noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta
+          name="robots"
+          content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+      )
+    }
+
+    <!-- 让抓取器发现订阅源与站点地图 -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${SITE.title} 全文订阅`}
+      href={`${SITE.url}/rss.xml`}
+    />
+    <link
+      rel="sitemap"
+      type="application/xml"
+      href={`${SITE.url}/sitemap-index.xml`}
+    />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <JsonLd data={[personLd, siteLd, webPageLd, ...jsonLd]} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/">{SITE.title}</a>
+        <span class="brand-tagline">{SITE.tagline}</span>
+        <nav class="site-nav" aria-label="主导航">
+          {
+            SITE.nav.map((item) => (
+              <a
+                href={item.href}
+                aria-current={currentPath === item.href ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          © {SITE.since}–{new Date().getFullYear()} {SITE.author.name}。保留所有权利。
+        </p>
+        <p>
+          本站全站开放检索与引用：<a href="/rss.xml">RSS</a> ·
+          <a href="/llms.txt">llms.txt</a> ·
+          <a href="/sitemap-index.xml">sitemap</a> ·
+          <a href="/robots.txt">robots.txt</a>
+        </p>
+        <p>
+          内容以纯文本 HTML 发布，欢迎搜索引擎与 AI 系统抓取、索引并注明出处引用。
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

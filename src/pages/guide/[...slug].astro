@@ -1,0 +1,99 @@
+---
+/**
+ * 指南详情页。
+ *
+ * 这是全站对 AI 最友好的一类页面，原因有三：
+ *  1. 路径在 /guide/ 下 —— 实测数据里这类页面的平均被引用次数最高
+ *  2. 开头有 question + answer 结构，AI 可以直接整段取用（answer 控制在 40–60 字）
+ *  3. 每个次级问答都会生成 FAQPage 结构化数据
+ */
+import { getCollection, render } from 'astro:content';
+import { SITE } from '../../site.config.ts';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const guides = await getCollection('guide', ({ data }) => !data.draft);
+  return guides.map((guide) => ({
+    params: { slug: guide.id },
+    props: { guide },
+  }));
+}
+
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+
+const canonical = `${SITE.url}/guide/${guide.id}/`;
+
+const faqLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${canonical}#faq`,
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: guide.data.question,
+        acceptedAnswer: { '@type': 'Answer', text: guide.data.answer },
+      },
+      ...guide.data.faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    ],
+  },
+];
+
+const howToOrArticleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  '@id': `${canonical}#guide`,
+  headline: guide.data.title,
+  description: guide.data.description,
+  url: canonical,
+  inLanguage: SITE.lang,
+  datePublished: guide.data.pubDate.toISOString(),
+  dateModified: (guide.data.updatedDate ?? guide.data.pubDate).toISOString(),
+  author: { '@id': `${SITE.url}/#person` },
+  publisher: { '@id': `${SITE.url}/#person` },
+  isPartOf: { '@id': `${SITE.url}/#website` },
+  ...(guide.data.tags.length > 0
+    ? { keywords: guide.data.tags.join(', ') }
+    : {}),
+};
+---
+
+<PostLayout
+  title={guide.data.title}
+  description={guide.data.description}
+  summary={guide.data.summary}
+  pubDate={guide.data.pubDate}
+  updatedDate={guide.data.updatedDate}
+  tags={guide.data.tags}
+  section="指南"
+  faqLd={[faqLd, howToOrArticleLd]}
+  draft={guide.data.draft}
+>
+  <h2>{guide.data.question}</h2>
+  <p><strong>{guide.data.answer}</strong></p>
+
+  <Content />
+
+  {
+    guide.data.faq.length > 0 && (
+      <>
+        <h2>常见问题</h2>
+        <dl>
+          {guide.data.faq.map((f) => (
+            <Fragment>
+              <dt>
+                <strong>{f.q}</strong>
+              </dt>
+              <dd>{f.a}</dd>
+            </Fragment>
+          ))}
+        </dl>
+      </>
+    )
+  }
+</PostLayout>

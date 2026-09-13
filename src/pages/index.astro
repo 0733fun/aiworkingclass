@@ -1,0 +1,103 @@
+---
+import { SITE } from '../site.config.ts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getBlog, getGuides, getWorks } from '../lib/content.ts';
+import { fmtDate } from '../lib/format.ts';
+
+const blog = await getBlog();
+const guides = await getGuides();
+const works = await getWorks();
+
+const latestBlog = blog.slice(0, 5);
+const latestGuides = guides.slice(0, 3);
+---
+
+<BaseLayout description={SITE.description}>
+  <section class="intro">
+    <h1>{SITE.title}</h1>
+    <p>{SITE.tagline}</p>
+    <p>
+      {SITE.author.name}，{SITE.author.jobTitle}。{SITE.author.bio}
+    </p>
+  </section>
+
+  {
+    works.length > 0 && (
+      <section>
+        <div class="section-head">
+          <h2>作品</h2>
+          <a href="/works/">全部作品 →</a>
+        </div>
+        <ul class="item-list">
+          {works.slice(0, 4).map((w) => (
+            <li>
+              <a class="item-title" href={`/works/${w.id}/`}>
+                {w.data.title}
+              </a>
+              <p class="item-summary">
+                {w.data.genre} · {(w.data.wordCount / 10000).toFixed(1)} 万字 ·{' '}
+                {w.data.status}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    latestBlog.length > 0 && (
+      <section>
+        <div class="section-head">
+          <h2>文章</h2>
+          <a href="/blog/">全部文章 →</a>
+        </div>
+        <ul class="item-list">
+          {latestBlog.map((post) => (
+            <li>
+              <a class="item-title" href={`/blog/${post.id}/`}>
+                {post.data.title}
+              </a>
+              <p class="item-summary">{post.data.summary}</p>
+              <p class="item-date">{fmtDate(post.data.pubDate)}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    latestGuides.length > 0 && (
+      <section>
+        <div class="section-head">
+          <h2>指南</h2>
+          <a href="/guide/">全部指南 →</a>
+        </div>
+        <ul class="item-list">
+          {latestGuides.map((g) => (
+            <li>
+              <a class="item-title" href={`/guide/${g.id}/`}>
+                {g.data.title}
+              </a>
+              <p class="item-summary">{g.data.summary}</p>
+              <p class="item-date">{fmtDate(g.data.pubDate)}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    blog.length === 0 && guides.length === 0 && works.length === 0 && (
+      <div class="notice">
+        <p>
+          站点已就绪，还没有内容。在 <code>src/content/blog/</code> 下新建一个
+          <code>.md</code> 文件即可发布第一篇文章，或运行
+          <code>npm run new</code> 按模板生成。
+        </p>
+      </div>
+    )
+  }
+</BaseLayout>

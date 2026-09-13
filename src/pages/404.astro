@@ -1,0 +1,49 @@
+---
+/**
+ * 404 页面。
+ *
+ * ⚠️ 这个文件有一个 Cloudflare Pages 特有的作用：
+ * 如果 Pages 项目里没有 404.html，Cloudflare Pages 会走默认回落逻辑 ——
+ * 当它与「托管的 robots.txt」功能同时启用时，会把 index.html 的 HTML
+ * 内容拼接到 robots.txt 后面，产出畸形文件导致爬虫解析失败。
+ * 有了 404.html 就不会触发这条回落路径。
+ *
+ * 详见 DEPLOY-CLOUDFLARE.md 的「已知冲突」一节。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getBlog, getGuides } from '../lib/content.ts';
+
+const [blog, guides] = await Promise.all([getBlog(), getGuides()]);
+const recent = [
+  ...blog.slice(0, 3).map((p) => ({ title: p.data.title, href: `/blog/${p.id}/` })),
+  ...guides.slice(0, 3).map((g) => ({ title: g.data.title, href: `/guide/${g.id}/` })),
+];
+---
+
+<BaseLayout
+  title="页面不存在"
+  description="你要找的页面不存在。"
+  noindex={true}
+>
+  <h1>404</h1>
+  <p>这个页面不存在，或者已经移动了。</p>
+
+  {
+    recent.length > 0 && (
+      <>
+        <h2>或许你想看</h2>
+        <ul class="item-list">
+          {recent.map((r) => (
+            <li>
+              <a class="item-title" href={r.href}>
+                {r.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  <p><a href="/">返回首页</a></p>
+</BaseLayout>

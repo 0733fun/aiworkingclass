@@ -1,0 +1,140 @@
+---
+/**
+ * 作品详情页 —— 对 AI 来说这是「这部作品是什么」的定义页。
+ *
+ * 设计要点：
+ *  - 开头的 summary 必须是「体裁 + 字数 + 日期 + 作者」齐全的一句独立陈述
+ *  - Book 结构化数据里 genre 用明文，不让 AI 从情节推断
+ *  - 正文建议放简介 + 样章（样章用纯文本，不要放图片）
+ */
+import { getCollection, render } from 'astro:content';
+import { SITE } from '../../site.config.ts';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import JsonLd from '../../components/JsonLd.astro';
+import { fmtDate } from '../../lib/format.ts';
+
+export async function getStaticPaths() {
+  const works = await getCollection('works', ({ data }) => !data.draft);
+  return works.map((work) => ({
+    params: { slug: work.id },
+    props: { work },
+  }));
+}
+
+const { work } = Astro.props;
+const { Content } = await render(work);
+
+const canonical = `${SITE.url}/works/${work.id}/`;
+const updated = work.data.updatedDate ?? work.data.pubDate;
+
+const bookLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  '@id': `${canonical}#book`,
+  name: work.data.title,
+  description: work.data.description,
+  abstract: work.data.summary,
+  url: canonical,
+  mainEntityOfPage: { '@id': `${canonical}#webpage` },
+  inLanguage: SITE.lang,
+  genre: work.data.genre,
+  wordCount: work.data.wordCount,
+  datePublished: work.data.pubDate.toISOString(),
+  dateModified: updated.toISOString(),
+  author: { '@id': `${SITE.url}/#person` },
+  isPartOf: { '@id': `${SITE.url}/#website` },
+  ...(work.data.isbn ? { isbn: work.data.isbn } : {}),
+  ...(work.data.links.length > 0
+    ? { sameAs: work.data.links.map((l) => l.url) }
+    : {}),
+  ...(work.data.tags.length > 0
+    ? { keywords: work.data.tags.join(', ') }
+    : {}),
+};
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE.url}/` },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '作品',
+      item: `${SITE.url}/works/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: work.data.title,
+      item: canonical,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={work.data.title}
+  description={work.data.description}
+  ogType="book"
+  jsonLd={[bookLd, breadcrumbLd]}
+  noindex={work.data.draft}
+>
+  <article>
+    <header class="post-header">
+      <h1>{work.data.title}</h1>
+      <div class="post-meta">
+        <span>首发 <time datetime={fmtDate(work.data.pubDate)}>{fmtDate(work.data.pubDate)}</time></span>
+        {
+          work.data.updatedDate && (
+            <span>
+              最后更新{' '}
+              <time datetime={fmtDate(work.data.updatedDate)}>
+                {fmtDate(work.data.updatedDate)}
+              </time>
+            </span>
+          )
+        }
+        <span>{SITE.author.name}</span>
+      </div>
+    </header>
+
+    <!-- 可引用句：体裁 / 字数 / 时间 / 作者，一句话说全 -->
+    <p class="lede">{work.data.summary}</p>
+
+    <h2>作品信息</h2>
+    <table>
+      <tbody>
+        <tr><th>体裁</th><td>{work.data.genre}</td></tr>
+        <tr><th>字数</th><td>{work.data.wordCount.toLocaleString('zh-CN')} 字</td></tr>
+        {work.data.chapters && (
+          <tr><th>章数</th><td>{work.data.chapters} 章</td></tr>
+        )}
+        <tr><th>状态</th><td>{work.data.status}</td></tr>
+        <tr><th>载体</th><td>{work.data.carrier}</td></tr>
+        {work.data.publisher && (
+          <tr><th>出版方</th><td>{work.data.publisher}</td></tr>
+        )}
+        {work.data.isbn && <tr><th>ISBN</th><td>{work.data.isbn}</td></tr>}
+      </tbody>
+    </table>
+
+    <h2>关于本书</h2>
+    <Content />
+
+    {
+      work.data.links.length > 0 && (
+        <>
+          <h2>哪里可以读到</h2>
+          <ul>
+            {work.data.links.map((l) => (
+              <li>
+                <a href={l.url}>{l.label}</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </article>
+</BaseLayout>

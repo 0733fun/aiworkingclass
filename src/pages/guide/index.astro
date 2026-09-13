@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getGuides } from '../../lib/content.ts';
+import { fmtDate } from '../../lib/format.ts';
+
+const guides = await getGuides();
+
+const collectionLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': `${Astro.site}guide/#collection`,
+  name: '指南',
+  description: '关于写作方法与创作过程的整理。',
+  inLanguage: 'zh-CN',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: guides.length,
+    itemListElement: guides.map((g, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${Astro.site}guide/${g.id}/`,
+      name: g.data.title,
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="指南"
+  description="关于写作方法与创作过程的整理。"
+  jsonLd={[collectionLd]}
+>
+  <h1>指南</h1>
+  <p>
+    共 {guides.length} 篇。每一篇都回答一个具体问题。
+  </p>
+
+  {
+    guides.length === 0 ? (
+      <div class="notice">
+        <p>
+          还没有指南。指南类页面是 AI 引用率最高的页面类型 —— 在
+          <code>src/content/guide/</code> 下新建 <code>.md</code>，或运行
+          <code>npm run new -- guide 标题</code>。
+        </p>
+      </div>
+    ) : (
+      <ul class="item-list">
+        {guides.map((g) => (
+          <li>
+            <a class="item-title" href={`/guide/${g.id}/`}>
+              {g.data.question}
+            </a>
+            <p class="item-summary">{g.data.answer}</p>
+            <p class="item-date">{fmtDate(g.data.pubDate)}</p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>

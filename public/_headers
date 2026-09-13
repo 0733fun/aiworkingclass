@@ -1,0 +1,31 @@
+# ============================================================================
+# Cloudflare Pages 响应头配置
+# 语法：<路径模式> 换行 缩进的 Header: value
+# ============================================================================
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  # 显式声明允许索引、允许长摘要 —— 对 AI 摘录正文有实际意义
+  X-Robots-Tag: index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1
+
+# 构建产物带哈希，可长期缓存
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 机器可读文件：短缓存，方便策略变更后快速生效
+/robots.txt
+  Cache-Control: public, max-age=3600
+  Content-Type: text/plain; charset=utf-8
+
+/llms.txt
+  Cache-Control: public, max-age=3600
+  Content-Type: text/plain; charset=utf-8
+
+/sitemap-index.xml
+  Cache-Control: public, max-age=3600
+  Content-Type: application/xml; charset=utf-8
+
+/rss.xml
+  Cache-Control: public, max-age=3600
+  Content-Type: application/rss+xml; charset=utf-8

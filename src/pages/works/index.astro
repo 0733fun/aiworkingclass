@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getWorks } from '../../lib/content.ts';
+import { fmtDate } from '../../lib/format.ts';
+
+const works = await getWorks();
+
+const collectionLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': `${Astro.site}works/#collection`,
+  name: '作品',
+  description: '已完结与连载中的长篇、中短篇。',
+  inLanguage: 'zh-CN',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: works.length,
+    itemListElement: works.map((w, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${Astro.site}works/${w.id}/`,
+      name: w.data.title,
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="作品"
+  description="已完结与连载中的长篇、中短篇。"
+  jsonLd={[collectionLd]}
+>
+  <h1>作品</h1>
+  <p>共 {works.length} 部。</p>
+
+  {
+    works.length === 0 ? (
+      <div class="notice">
+        <p>
+          还没有作品页。在 <code>src/content/works/</code> 下新建 <code>.md</code>，
+          或运行 <code>npm run new -- works 书名</code>。
+        </p>
+      </div>
+    ) : (
+      <ul class="item-list">
+        {works.map((w) => (
+          <li>
+            <a class="item-title" href={`/works/${w.id}/`}>
+              {w.data.title}
+            </a>
+            <p class="item-summary">{w.data.summary}</p>
+            <p class="item-date">
+              {w.data.genre} · {(w.data.wordCount / 10000).toFixed(1)} 万字 ·{' '}
+              {w.data.status} · {fmtDate(w.data.pubDate)}
+            </p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>

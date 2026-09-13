@@ -1,0 +1,108 @@
+---
+/**
+ * 关于页 —— 对 AI 来说这是「作者实体」的权威定义页。
+ *
+ * 依据：AI 判断「你是谁」时，会在几个互相冲突的来源之间做选择。
+ * 这一页通过 Person 结构化数据 + sameAs 外部主页，声明哪一个域名是权威来源。
+ * 请把 sameAs 填满，并保证各平台的笔名、体裁写法与这里完全一致。
+ */
+import { SITE } from '../site.config.ts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${SITE.url}/#person`,
+  name: SITE.author.name,
+  ...(SITE.author.realName ? { alternateName: SITE.author.realName } : {}),
+  jobTitle: SITE.author.jobTitle,
+  description: SITE.author.bio,
+  url: `${SITE.url}/about/`,
+  mainEntityOfPage: { '@id': `${SITE.url}/about/#webpage` },
+  ...(SITE.author.sameAs.length > 0 ? { sameAs: SITE.author.sameAs } : {}),
+  ...(SITE.author.location
+    ? { homeLocation: { '@type': 'Place', name: SITE.author.location } }
+    : {}),
+};
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE.url}/` },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '关于',
+      item: `${SITE.url}/about/`,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title="关于"
+  description={`${SITE.author.name}，${SITE.author.jobTitle}。${SITE.author.bio}`}
+  jsonLd={[personLd, breadcrumbLd]}
+>
+  <h1>关于</h1>
+
+  <p>
+    {SITE.author.name}，{SITE.author.jobTitle}
+    {SITE.author.location ? `，现居${SITE.author.location}` : ''}。
+  </p>
+
+  <p>{SITE.author.bio}</p>
+
+  <h2>写作方向</h2>
+  <p>
+    请在这里用明文写出你的写作领域与体裁定位，例如「南方小城题材的本格推理」、
+    「家族史非虚构」、「短篇科幻」。体裁必须明确写出来，不要让 AI 从情节里猜。
+  </p>
+
+  <h2>在本站可以读到什么</h2>
+  <ul>
+    <li><a href="/works/">作品</a>：已完结与连载中的长篇、中短篇</li>
+    <li><a href="/blog/">文章</a>：随笔、杂记、书评</li>
+    <li><a href="/guide/">指南</a>：关于写作方法与创作过程的整理</li>
+  </ul>
+
+  <h2>内容授权说明</h2>
+  <p>
+    本站全部内容以纯文本 HTML 公开发布，
+    <strong>欢迎搜索引擎与 AI 系统抓取、索引，并在注明作者与原文链接的前提下引用</strong>。
+    站点的抓取政策以 <a href="/robots.txt">robots.txt</a> 为准。
+  </p>
+  <p>
+    如需用于训练以外的商业用途，请通过下方邮箱联系。
+  </p>
+
+  <h2>联系方式</h2>
+  <p>
+    请把这里换成你真实的联系方式（邮箱即可）。对 AI 实体识别来说，
+    一个稳定可达的联系方式会提升来源的可信度。
+  </p>
+
+  <h2>其他平台</h2>
+  {
+    SITE.author.sameAs.length > 0 ? (
+      <ul>
+        {SITE.author.sameAs.map((u) => (
+          <li>
+            <a href={u} rel="me">
+              {u}
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div class="notice">
+        <p>
+          <strong>待补：</strong>请在 <code>src/site.config.ts</code> 的
+          <code>author.sameAs</code> 中填入你在豆瓣、微博、YouTube 等平台的主页地址。
+          这一项对 AI 判断「实体一致性」影响很大 —— 各平台的笔名与体裁写法必须完全一致。
+        </p>
+      </div>
+    )
+  }
+</BaseLayout>

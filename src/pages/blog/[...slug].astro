@@ -1,0 +1,35 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const sectionLabel: Record<string, string> = {
+  essay: '随笔',
+  note: '杂记',
+  review: '书评',
+  interview: '访谈',
+};
+---
+
+<PostLayout
+  title={post.data.title}
+  description={post.data.description}
+  summary={post.data.summary}
+  pubDate={post.data.pubDate}
+  updatedDate={post.data.updatedDate}
+  tags={post.data.tags}
+  section={sectionLabel[post.data.kind] ?? '随笔'}
+  draft={post.data.draft}
+>
+  <Content />
+</PostLayout>

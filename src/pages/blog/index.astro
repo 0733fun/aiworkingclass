@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getBlog } from '../../lib/content.ts';
+import { fmtDate } from '../../lib/format.ts';
+
+const posts = await getBlog();
+
+const collectionLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': `${Astro.site}blog/#collection`,
+  name: '文章',
+  description: '随笔、杂记与书评。',
+  inLanguage: 'zh-CN',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: posts.length,
+    itemListElement: posts.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${Astro.site}blog/${p.id}/`,
+      name: p.data.title,
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="文章"
+  description="随笔、杂记与书评。"
+  jsonLd={[collectionLd]}
+>
+  <h1>文章</h1>
+  <p>共 {posts.length} 篇。</p>
+
+  {
+    posts.length === 0 ? (
+      <div class="notice">
+        <p>
+          还没有文章。在 <code>src/content/blog/</code> 下新建 <code>.md</code> 文件，
+          或运行 <code>npm run new -- blog 标题</code>。
+        </p>
+      </div>
+    ) : (
+      <ul class="item-list">
+        {posts.map((post) => (
+          <li>
+            <a class="item-title" href={`/blog/${post.id}/`}>
+              {post.data.title}
+            </a>
+            <p class="item-summary">{post.data.summary}</p>
+            <p class="item-date">
+              {fmtDate(post.data.pubDate)}
+              {post.data.tags.length > 0 && ` · ${post.data.tags.join(' / ')}`}
+            </p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>
