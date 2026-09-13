@@ -1,0 +1,23 @@
+{
+  "name": "0733-fun",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "0733.fun — 个人写作站点，为 AI 检索与引用而构建",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "new": "node scripts/new-post.mjs",
+    "check:local": "node scripts/check-ai-crawl.mjs --dir dist",
+    "check:live": "node scripts/check-ai-crawl.mjs --url https://0733.fun"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^5.18.2"
+  }
+}
