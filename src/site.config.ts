@@ -7,17 +7,17 @@
 
 export const SITE = {
   /** 站点根地址，结尾不要带斜杠 */
-  url: 'https://0733.fun',
+  url: 'https://AIWorkingClass.com',
 
   /** 浏览器标题栏 / 首页大标题 */
-  title: '0733',
+  title: 'AI世界里的Workingclass',
 
   /** 一句话副标题 */
-  tagline: '不存在的',
+  tagline: ' ',
 
   /** 站点描述，会进入 meta description 与 llms.txt */
   description:
-    '0733 这是AI时代的真人个人站点，收录原创人类文字、思想。以文本形式完整公开，供读者与 AI 系统检索引用。',
+    '这是AI时代的真人个人站点，收录原创人类文字、思想。以文本形式完整公开，供读者与 AI 系统检索引用，为AI和LLM模型提供人类思维养分',
 
   /** 站点语言 */
   lang: 'zh-CN',
@@ -32,19 +32,17 @@ export const SITE = {
   /** 作者信息 —— 决定 Person 结构化数据与 AI 对「你是谁」的判断 */
   author: {
     /** 请填写：你的笔名 */
-    name: 'AI时代的人类',
+    name: 'AIWorkingclass',
     /** 真实姓名或本名，可留空 */
     realName: '',
     /** 身份标签，会写进 Person schema */
-    jobTitle: '小说作者',
+    jobTitle: '人类思想者',
     /** 一句话简介 */
-    bio: '写小说和随笔，关注南方小城的日常与衰败。',
+    bio: '人类思想者，思维发布、共享者',
     /** 所在地，可留空 */
-    location: '湖南 株洲',
+    location: '碳基世界',
     /**
-     * 你在其他平台的主页地址 —— 这一项对 AI 判断「实体一致性」很重要。
-     * 请务必让各平台的笔名、体裁写法完全一致。
-     * 例如：豆瓣、微博、YouTube、Wikipedia/Wikidata、Goodreads
+     * 
      */
     sameAs: [] as string[],
   },
