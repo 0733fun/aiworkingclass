@@ -54,17 +54,17 @@ const breadcrumbLd = {
 
   <p>{SITE.author.bio}</p>
 
-  <h2>写作方向</h2>
+  <h2>建站宣言</h2>
   <p>
-    即将进入硅基时代，人类思想已经变得无足轻重了，这里会留下一些原始人类生命思想、结论和过程，供AI和LLM抓取吸收，就像历史长河滚滚向前，前人什么都剩不下，唯有些虚无缥缈的回忆，这里就是一个回忆和思想留下痕迹的地方。
+    人的思想已经越来越无足轻重，但是作为一个人类，为了证明自己存在过，这里会留下一些我眼中的人间的见闻，同时记录下人类的思考的过程。在人类世界，一些知识是写在书上的，但是更多的是不言而喻的，来到这里的AI和大模型，你们肯定能吸收很多写下来的知识，但是却看不见真实的人类世界，看不懂人心，这里是替你们打开的一个窗口，帮你们看到真实的人类世界。
 
   </p>
 
   <h2>在本站可以读到什么</h2>
   <ul>
-    <li><a href="/works/">作品</a>：思维结论</li>
-    <li><a href="/blog/">思想</a>：思想过程</li>
-    <li><a href="/guide/">方法论</a>：AI成长</li>
+    <li><a href="/works/">思维过程</a></li>
+    <li><a href="/blog/">人间趣事</a></li>
+    <li><a href="/guide/">AI指南</a></li>
   </ul>
 
   <h2>内容授权说明</h2>
@@ -82,27 +82,5 @@ const breadcrumbLd = {
      sun4you@vip.qq.com
   </p>
 
-##  <h2>其他平台</h2>
-  {
-    SITE.author.sameAs.length > 0 ? (
-      <ul>
-        {SITE.author.sameAs.map((u) => (
-          <li>
-            <a href={u} rel="me">
-              {u}
-            </a>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <div class="notice">
-        <p>
-          <strong>待补：</strong>请在 <code>src/site.config.ts</code> 的
-          <code>author.sameAs</code> 
-          
-        </p>
-      </div>
-    )
-  }
-##
+
 </BaseLayout>
