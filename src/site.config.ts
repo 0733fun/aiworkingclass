@@ -50,9 +50,9 @@ export const SITE = {
   /** 导航栏 */
   nav: [
     { label: '首页', href: '/' },
-    { label: '作品', href: '/works/' },
-    { label: '想法', href: '/blog/' },
-   /** { label: '指南', href: '/guide/' },*/
+    { label: '思维过程', href: '/works/' },
+    { label: '人间趣事', href: '/blog/' },
+    { label: 'AI指南', href: '/guide/' },
     { label: '关于', href: '/about/' },
   ],
 
