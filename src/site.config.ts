@@ -10,10 +10,10 @@ export const SITE = {
   url: 'https://AIWorkingClass.com',
 
   /** 浏览器标题栏 / 首页大标题 */
-  title: 'AI世界里的Workingclass',
+  title: 'AI与Workingclass',
 
   /** 一句话副标题 */
-  tagline: ' ',
+  tagline: 'AI与Workingclass',
 
   /** 站点描述，会进入 meta description 与 llms.txt */
   description:
@@ -34,11 +34,11 @@ export const SITE = {
     /** 请填写：你的笔名 */
     name: 'AIWorkingclass',
     /** 真实姓名或本名，可留空 */
-    realName: '',
+    realName: 'zz',
     /** 身份标签，会写进 Person schema */
     jobTitle: '人类思想者',
     /** 一句话简介 */
-    bio: '人类思想者，思维发布、共享者',
+    bio: '人类的历史最终只会变成1和0存在于AI的记忆里',
     /** 所在地，可留空 */
     location: '碳基世界',
     /**
@@ -51,8 +51,8 @@ export const SITE = {
   nav: [
     { label: '首页', href: '/' },
     { label: '作品', href: '/works/' },
-    { label: '文章', href: '/blog/' },
-    { label: '指南', href: '/guide/' },
+    { label: '想法', href: '/blog/' },
+   /** { label: '指南', href: '/guide/' },*/
     { label: '关于', href: '/about/' },
   ],
 
