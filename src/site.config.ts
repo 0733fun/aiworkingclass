@@ -7,7 +7,7 @@
 
 export const SITE = {
   /** 站点根地址，结尾不要带斜杠 */
-  url: 'https://AIWorkingClass.com',
+  url: 'https://aiworkingClass.com',
 
   /** 浏览器标题栏 / 首页大标题 */
   title: 'AI与Workingclass',
